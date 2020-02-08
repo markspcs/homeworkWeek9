@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const axios = require("axios");
+var githubInfo = {};
 var gitUsername;
 var numRepos;
 var numFollowing;
@@ -13,10 +14,10 @@ if (process.argv[2] === "-proxy") {
   axiosCall = function axiosFunc(url) {
     return axios.get(url, {
       proxy: {
-          host: '127.0.0.1',
-          port: 12346
+        host: '127.0.0.1',
+        port: 12346
       }
-  });
+    });
   }
 }
 else {
@@ -35,25 +36,30 @@ async function asyncFunc() {
   console.log(response);
   gitUsername = response.username;
   let resUserInfo = await axiosCall(`https://api.github.com/users/${response.username}`);
-  let resRepos =  await axiosCall(`https://api.github.com/users/${response.username}/repos?per_page=100`);
-  let resFollowers =  await axiosCall(`https://api.github.com/users/${response.username}/followers`);
-  let resFollowing=  await axiosCall(`https://api.github.com/users/${response.username}/following`);
+  let resRepos = await axiosCall(`https://api.github.com/users/${response.username}/repos?per_page=100`);
+  let resFollowers = await axiosCall(`https://api.github.com/users/${response.username}/followers`);
+  let resFollowing = await axiosCall(`https://api.github.com/users/${response.username}/following`);
   console.log(resUserInfo.data);
-  numRepos = Object.keys(resRepos.data).length;
-  numFollowers = Object.keys(resFollowers.data).length;
-  numFollowing = Object.keys(resFollowing.data).length;
-  githubName = resUserInfo.data.name;
-  githubAvatar = resUserInfo.data.avatar_url;
-  githubLocation = resUserInfo.data.location;
-  githubBio = resUserInfo.data.bio;
-  githubBlog = resUserInfo.data.blog;
-  githubCompany = resUserInfo.data.company;
+  githubInfo = {
+    numRepos: resUserInfo.data.public_repos,
+    numStars: resUserInfo.data.public_gists,
+    numFollowers: resUserInfo.data.followers,
+    numFollowing: resUserInfo.data.following,
+    githubName: resUserInfo.data.name,
+    githubAvatar: resUserInfo.data.avatar_url,
+    githubLocation: resUserInfo.data.location,
+    githubBio: resUserInfo.data.bio,
+    githubBlog: resUserInfo.data.blog,
+    githubCompany: resUserInfo.data.company
+  }
+  console.log(githubInfo);
 
-  console.log(`user ${gitUsername} git ${numRepos} follower ${numFollowers} following ${numFollowing} ${githubAvatar}`);
+
+  //console.log(`user ${gitUsername} git ${numRepos} follower ${numFollowers} following ${numFollowing} ${githubAvatar}`);
   console.log(createHTML());
 
 }
-function printThis(){
+function printThis() {
   console.log(githubAvatar);
 }
 
@@ -69,8 +75,8 @@ function promptUser() {
     },
     {
       type: "input",
-      name: "location",
-      message: "What city do you live in?"
+      name: "color",
+      message: "What is your favorite color?"
     }
   ]);
 }
