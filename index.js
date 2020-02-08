@@ -1,5 +1,10 @@
-var inquirer = require("inquirer");
+const inquirer = require("inquirer");
 const axios = require("axios");
+var gitUsername;
+var numRepos;
+var numFollowing;
+var numFollowers;
+var githubName, githubAvatar, githubLocation, githubBio, githubBlog, githubCompany;
 
 //Added this part, because I need a proxy in one of my development enviroments
 //global var to be used across any function
@@ -20,65 +25,38 @@ else {
   }
 }
 
-getMovie();
-async function getMovie() {
-  try {
-    const { movie } = await inquirer.prompt({
-      message: "Search a movie:",
-      name: "movie"
-    });
 
-    const { data } = await axios.get(
-      `https://www.omdbapi.com/?t=${movie}&apikey=trilogy`
-    );
+asyncFunc();
+console.log("here")
+////////////////////////////////////////////////
+//ALL ASYNC CONTENT HERE
+async function asyncFunc() {
+  const response = await promptUser();
+  console.log(response);
+  gitUsername = response.username;
+  let resUserInfo = await axiosCall(`https://api.github.com/users/${response.username}`);
+  let resRepos =  await axiosCall(`https://api.github.com/users/${response.username}/repos?per_page=100`);
+  let resFollowers =  await axiosCall(`https://api.github.com/users/${response.username}/followers`);
+  let resFollowing=  await axiosCall(`https://api.github.com/users/${response.username}/following`);
+  console.log(resUserInfo.data);
+  numRepos = Object.keys(resRepos.data).length;
+  numFollowers = Object.keys(resFollowers.data).length;
+  numFollowing = Object.keys(resFollowing.data).length;
+  githubName = resUserInfo.data.name;
+  githubAvatar = resUserInfo.data.avatar_url;
+  githubLocation = resUserInfo.data.location;
+  githubBio = resUserInfo.data.bio;
+  githubBlog = resUserInfo.data.blog;
+  githubCompany = resUserInfo.data.company;
 
-    console.log(data);
-  
-  } catch (err) {
-    console.log(err);
-  }
+  console.log(`user ${gitUsername} git ${numRepos} follower ${numFollowers} following ${numFollowing} ${githubAvatar}`);
+  console.log(createHTML());
+
+}
+function printThis(){
+  console.log(githubAvatar);
 }
 
-// function asyncFunc() {
-//   const response = await promptUser();
-//   console.log(response);
-//   return response;
-// }
-
-// asyncFunc();
-// promptUser()
-//   .then(function(response){
-//     console.log(`username ${response.username} and location ${response.location}!`);
-//     return response;
-//   })
-//   .then(function({ username }){
-//     console.log(username);
-//     //return axiosCall("http://markstout.com")
-//     let res =  await axiosCall(`https://api.github.com/users/${username}/repos?per_page=100`);
-//     console.log(`in a then`);
-//     return res;
-//     //parseGithub(username);
-//   })
-//   .then(function(res) {
-//     console.log("res");
-//   });
-
-// console.log("here");
-
-// function parseGithub(res){
-//   console.log(res);
-// }
-
-function parseGithub(username) {
-  return new Promise(function(resolve, reject) {
-    let axiosReturn = axiosCall(`https://api.github.com/users/${username}/repos?per_page=100`) 
-      // if (err) {
-      //   return reject(err);
-      // }
-      console.location(axiosReturn);
-      resolve(axiosReturn);
-    });
-}
 
 ///////////////////////////////////////////////////////////////////
 //prompt user for input and return username location
@@ -97,3 +75,61 @@ function promptUser() {
   ]);
 }
 
+
+//////////////////////////////////////////////////////
+function createHTML() {
+  return `
+  <!DOCTYPE html>
+  <html lang="en-us">
+  
+  <head>
+      <meta charset="UTF-8">
+      <title>profolio</title>
+      <!-- <link rel="stylesheet" type="text/css" href="./assets/css/reset.css"> -->
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+      <link rel="stylesheet" href="./style.css">
+  </head>
+  
+  <body>
+          <div class="card w-75 text-center bubble">
+              <div class="card-body">
+                <h5 class="card-title">Hi!</h5>
+                <p class="card-text">My name is ${githubName}.</p>
+                <p> Currently @ ${githubCompany} </p>
+                <a href="https://www.google.com/maps/place/${githubLocation}">${githubLocation}</a>
+              </div>
+          </div>
+          <div class="bodyCont w-50">
+              <h3 class="black">${githubBio}</h3>
+              <div class="card text-center dynCont">
+              <div class="card-body">
+                <h5 class="card-title">Public Repositories</h5>
+                <p class="card-text">${numRepos}.</p>
+              </div>
+          </div>
+          <div class="card text-center dynCont right">
+              <div class="card-body">
+                <h5 class="card-title">Followers</h5>
+                <p class="card-text">${numFollowers}</p>
+              </div>
+          </div>
+  
+      </p>
+          <div class="card w-25 text-center dynCont">
+              <div class="card-body">
+                <h5 class="card-title">GitHub Stars</h5>
+                <p class="card-text">5</p>
+              </div>
+          </div>
+          <div class="card w-25 text-center dynCont right">
+              <div class="card-body">
+                <h5 class="card-title">Following</h5>
+                <p class="card-text">${numFollowing}</p>
+              </div>
+          </div>
+      </div>
+  </body>
+  
+  </html>`;
+}
