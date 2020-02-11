@@ -20,14 +20,50 @@ body {
     font-weight: 800;
     font-size: 22px;
 }
+.topCard{
+    overflow: hidden;
+    background-color: #fe8373;
+    padding-top: 100px;
+}
+/* #crop{
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+} */
+/* #avatar{
+    display: inline;
+    margin: 0 auto;
+    height: 100%;
+    width: auto;
+} */
+
+img.avatar{
+    position: absolute;
+    left: 50%;
+    top: 100px;
+    transform: translate(-50%, -50%);
+    display: inline;
+    background-color: yellow;
+    width: 200px;
+    height: 200px;
+
+    border-radius: 50%;
+    border: 3px solid yellow;
+}
+a {
+    color: white;
+}
 .black{
     color: black;
     text-align: center;
 }
 .bubble {
-    background-color: #fe8373;
-    margin: 40px auto;
+    margin: 100px auto;
+    margin-bottom: 40px;
     overflow: auto;
+    background-color: transparent;
 }
 .bodyCont{
     margin: 0 auto;

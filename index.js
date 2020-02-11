@@ -1,11 +1,11 @@
 const inquirer = require("inquirer");
 const axios = require("axios");
+const fs = require('fs');
+const convertFactory = require('electron-html-to');
+
 var githubInfo = {};
 var gitUsername;
-var numRepos;
-var numFollowing;
-var numFollowers;
-var githubName, githubAvatar, githubLocation, githubBio, githubBlog, githubCompany;
+var numRepos, numFollowing, numFollowers, githubName, githubAvatar, githubLocation, githubBio, githubBlog, githubCompany;
 
 //Added this part, because I need a proxy in one of my development enviroments
 //global var to be used across any function
@@ -58,9 +58,40 @@ async function asyncFunc() {
   //console.log(`user ${gitUsername} git ${numRepos} follower ${numFollowers} following ${numFollowing} ${githubAvatar}`);
   console.log(createHTML());
 
-}
-function printThis() {
-  console.log(githubAvatar);
+//   var pdfConvert = convertFactory({
+//     converterPath: convertFactory.converters.PDF
+//   });
+
+//   pdfConvert({ html: createHTML() }, function (err, result) {
+//     if (err) {
+//       return console.error(err)
+//     }
+//     console.log(result.numberOfPages);
+//     console.log(result.logs);
+//     result.stream.pipe(fs.createWriteStream('./test.pdf'));
+//     pdfConvert.kill(); // not sure I need this yet
+
+//   });
+// }
+var fs = require('fs'),
+    convertFactory = require('electron-html-to');
+ 
+var conversion = convertFactory({
+  converterPath: convertFactory.converters.PDF,
+  allowLocalFilesAccess: true
+});
+let html = createHTML(); 
+conversion({ html: html }, function(err, result) {
+  if (err) {
+    return console.error(err);
+  }
+ 
+  console.log(result.numberOfPages);
+  console.log(result.logs);
+  result.stream.pipe(fs.createWriteStream('./anywhere.pdf'));
+  conversion.kill(); // necessary if you use the electron-server strategy, see bellow for details
+});
+
 }
 
 
@@ -94,48 +125,184 @@ function createHTML() {
       <!-- <link rel="stylesheet" type="text/css" href="./assets/css/reset.css"> -->
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-      <link rel="stylesheet" href="./style.css">
+      <!-- <link rel="stylesheet" href="./style.css"> -->
+      <style>
+      html {
+        height: 100%;
+    }
+    body {
+        background-color: #879cdf;
+        background: linear-gradient(
+            #879cdf ,
+            #879cdf 33%,
+            #dfedee 33%,
+            #dfedee 66%,
+            #879cdf 66%,
+            #879cdf 0px
+           
+            );
+        min-height: 100%;
+        height: 100%;
+        width: 100%;
+        color: white;
+        font-family: Georgia, serif;
+        font-weight: 800;
+        font-size: 22px;
+    }
+    .topCard{
+        overflow: hidden;
+        background-color: #fe8373;
+        padding-top: 100px;
+    }
+    /* #crop{
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+        position: relative;
+    } */
+    /* #avatar{
+        display: inline;
+        margin: 0 auto;
+        height: 100%;
+        width: auto;
+    } */
+    
+    img.avatar{
+        position: absolute;
+        left: 50%;
+        top: 100px;
+        transform: translate(-50%, -50%);
+        display: inline;
+        background-color: yellow;
+        width: 200px;
+        height: 200px;
+    
+        border-radius: 50%;
+        border: 3px solid yellow;
+    }
+    a {
+        color: white;
+    }
+    .black{
+        color: black;
+        text-align: center;
+    }
+    .bubble {
+        margin: 100px auto;
+        margin-bottom: 40px;
+        overflow: auto;
+        background-color: transparent;
+    }
+    .bodyCont{
+        margin: 0 auto;
+        align-content: center;
+    }
+    .dynCont{
+        width: 40%;
+        background-color: #fe8373;
+        display: inline-block;
+        margin: 10px auto;
+        overflow: auto;
+    }
+    .right{
+        float:right;
+    }
+      </style>
   </head>
-  
   <body>
-          <div class="card w-75 text-center bubble">
-              <div class="card-body">
-                <h5 class="card-title">Hi!</h5>
-                <p class="card-text">My name is ${githubName}.</p>
-                <p> Currently @ ${githubCompany} </p>
-                <a href="https://www.google.com/maps/place/${githubLocation}">${githubLocation}</a>
-              </div>
-          </div>
-          <div class="bodyCont w-50">
-              <h3 class="black">${githubBio}</h3>
-              <div class="card text-center dynCont">
-              <div class="card-body">
-                <h5 class="card-title">Public Repositories</h5>
-                <p class="card-text">${numRepos}.</p>
-              </div>
-          </div>
-          <div class="card text-center dynCont right">
-              <div class="card-body">
-                <h5 class="card-title">Followers</h5>
-                <p class="card-text">${numFollowers}</p>
-              </div>
-          </div>
-  
-      </p>
-          <div class="card w-25 text-center dynCont">
-              <div class="card-body">
-                <h5 class="card-title">GitHub Stars</h5>
-                <p class="card-text">5</p>
-              </div>
-          </div>
-          <div class="card w-25 text-center dynCont right">
-              <div class="card-body">
-                <h5 class="card-title">Following</h5>
-                <p class="card-text">${numFollowing}</p>
-              </div>
-          </div>
+
+  <div class="card w-75 text-center bubble">
+
+    <div class="card-body topCard">
+
+
+
+      <h5 class="card-title">Hi!</h5>
+      <p class="card-text">My name is Greg.</p>
+      <p> Currently @ @influxdata </p>
+      <a href="https://www.google.com/maps/place/St George, UT"><i class="fas fa-location-arrow"></i>St George, UT</a>
+      <i class="fab fa-github"></i>
+      <i class="fas fa-rss"></i>
+    </div>
+  </div>
+
+  <img class="avatar" src="https://avatars0.githubusercontent.com/u/2653109?v=4" />
+
+  <div class="bodyCont w-50">
+    <h3 class="black">I'm an aspiring go pro. I write codes, shoot guns, climb rocks, and eat meats.</h3>
+    <div class="card text-center dynCont">
+      <div class="card-body">
+        <h5 class="card-title">Public Repositories</h5>
+        <p class="card-text">28.</p>
       </div>
-  </body>
-  
-  </html>`;
+    </div>
+    <div class="card text-center dynCont right">
+      <div class="card-body">
+        <h5 class="card-title">Followers</h5>
+        <p class="card-text">25</p>
+      </div>
+    </div>
+
+    </p>
+    <div class="card text-center dynCont">
+      <div class="card-body">
+        <h5 class="card-title">GitHub Stars</h5>
+        <p class="card-text">5</p>
+      </div>
+    </div>
+    <div class="card text-center dynCont right">
+      <div class="card-body">
+        <h5 class="card-title">Following</h5>
+        <p class="card-text">1</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
+
+`;
 }
+//   <body>
+//           <div class="card w-75 text-center bubble">
+//               <div class="card-body">
+//                 <h5 class="card-title">Hi!</h5>
+//                 <p class="card-text">My name is ${githubInfo.githubName}.</p>
+//                 <p> Currently @ ${githubInfo.githubCompany} </p>
+//                 <a href="https://www.google.com/maps/place/${githubInfo.githubLocation}">${githubInfo.githubLocation}</a>
+//               </div>
+//           </div>
+//           <div class="bodyCont w-50">
+//               <h3 class="black">${githubInfo.githubBio}</h3>
+//               <div class="card text-center dynCont">
+//               <div class="card-body">
+//                 <h5 class="card-title">Public Repositories</h5>
+//                 <p class="card-text">${githubInfo.numRepos}.</p>
+//               </div>
+//           </div>
+//           <div class="card text-center dynCont right">
+//               <div class="card-body">
+//                 <h5 class="card-title">Followers</h5>
+//                 <p class="card-text">${githubInfo.numFollowers}</p>
+//               </div>
+//           </div>
+  
+//       </p>
+//           <div class="card w-25 text-center dynCont">
+//               <div class="card-body">
+//                 <h5 class="card-title">GitHub Stars</h5>
+//                 <p class="card-text">5</p>
+//               </div>
+//           </div>
+//           <div class="card w-25 text-center dynCont right">
+//               <div class="card-body">
+//                 <h5 class="card-title">Following</h5>
+//                 <p class="card-text">${numFollowing}</p>
+//               </div>
+//           </div>
+//       </div>
+//   </body>
+  
+//   </html>`;
+// }
