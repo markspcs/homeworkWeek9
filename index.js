@@ -1,8 +1,24 @@
 const inquirer = require("inquirer");
 const axios = require("axios");
+const pdf = require('html-pdf');
 const fs = require('fs');
-const convertFactory = require('electron-html-to');
+const html = fs.readFileSync('./test.html', 'utf8');
+// const option = { format: 'A4', orientation: 'portrait', viewportSize: {
+//   width: 1200,
+//   height: 600
+// },
+// };
 
+const option = { height: "10in", 
+  width: "6in",
+  margin: '1cm',
+  viewportSize: { width: 800, height: 400 }
+};
+
+pdf.create(html, option).toFile('./test.pdf', function(err, res){
+  if (err) return console.log(err);
+  console.log(res);
+});
 var githubInfo = {};
 var gitUsername;
 var numRepos, numFollowing, numFollowers, githubName, githubAvatar, githubLocation, githubBio, githubBlog, githubCompany;
@@ -73,24 +89,6 @@ async function asyncFunc() {
 
 //   });
 // }
-var fs = require('fs'),
-    convertFactory = require('electron-html-to');
- 
-var conversion = convertFactory({
-  converterPath: convertFactory.converters.PDF,
-  allowLocalFilesAccess: true
-});
-let html = createHTML(); 
-conversion({ html: html }, function(err, result) {
-  if (err) {
-    return console.error(err);
-  }
- 
-  console.log(result.numberOfPages);
-  console.log(result.logs);
-  result.stream.pipe(fs.createWriteStream('./anywhere.pdf'));
-  conversion.kill(); // necessary if you use the electron-server strategy, see bellow for details
-});
 
 }
 
